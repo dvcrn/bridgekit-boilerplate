@@ -3,7 +3,7 @@ package internal
 import (
 	_ "embed"
 
-	"github.com/dvcrn/bridgekit/pkg"
+	"github.com/dvcrn/matrix-bridgekit/bridgekit"
 	"go.mau.fi/util/configupgrade"
 	"maunium.net/go/mautrix/bridge/bridgeconfig"
 )
@@ -11,7 +11,7 @@ import (
 //go:embed example-config.yaml
 var ExampleConfig string
 
-var _ pkg.ConfigGetter = &Config{}
+var _ bridgekit.ConfigGetter = &Config{}
 var _ bridgeconfig.BridgeConfig = &MyBridgeConfig{}
 
 type MyBridgeConfig struct {

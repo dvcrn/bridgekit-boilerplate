@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
+
 	"github.com/dvcrn/bridgekit-boilerplate/internal"
-	"github.com/dvcrn/bridgekit/pkg"
+	"github.com/dvcrn/matrix-bridgekit/bridgekit"
 )
 
 func main() {
-	br := pkg.NewBridgeKit(
+	br := bridgekit.NewBridgeKit(
 		"MyBridge",
 		"sh-mybridge",
 		"",

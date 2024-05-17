@@ -11,19 +11,20 @@ import (
 	"maunium.net/go/mautrix/bridge/commands"
 	"maunium.net/go/mautrix/format"
 
-	"github.com/dvcrn/bridgekit/pkg"
-	"github.com/dvcrn/bridgekit/pkg/domain"
 	"maunium.net/go/mautrix/bridge"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
+
+	"github.com/dvcrn/matrix-bridgekit/bridgekit"
+	"github.com/dvcrn/matrix-bridgekit/matrix"
 )
 
-var _ pkg.BridgeConnector = (*MyBridgeConnector)(nil)
-var _ pkg.MatrixRoomEventHandler = (*MyBridgeConnector)(nil)
+var _ bridgekit.BridgeConnector = (*MyBridgeConnector)(nil)
+var _ bridgekit.MatrixRoomEventHandler = (*MyBridgeConnector)(nil)
 
 type MemDB struct {
-	Users map[id.UserID]*domain.User
-	Rooms map[id.RoomID]*domain.Room
+	Users map[id.UserID]*matrix.User
+	Rooms map[id.RoomID]*matrix.Room
 }
 
 func (mdb *MemDB) Store() {
@@ -56,13 +57,13 @@ func (mdb *MemDB) Load() {
 
 func NewMemDB() *MemDB {
 	return &MemDB{
-		Users: map[id.UserID]*domain.User{},
-		Rooms: map[id.RoomID]*domain.Room{},
+		Users: map[id.UserID]*matrix.User{},
+		Rooms: map[id.RoomID]*matrix.Room{},
 	}
 }
 
 type MyBridgeConnector struct {
-	kit *pkg.BridgeKit
+	kit *bridgekit.BridgeKit
 
 	memDb *MemDB
 }
@@ -78,10 +79,10 @@ func (m MyBridgeConnector) Init(ctx context.Context) error {
 	m.kit.RegisterCommand(&commands.FullHandler{
 		Func: func(e *commands.Event) {
 			// dummy function function
-			user := e.User.(*domain.User)
-			var room *domain.Room
+			user := e.User.(*matrix.User)
+			var room *matrix.Room
 			if e.Portal != nil {
-				room = e.Portal.(*domain.Room)
+				room = e.Portal.(*matrix.Room)
 			}
 			fmt.Println("Login called", user.DisplayName, room.MXID.String())
 
@@ -103,7 +104,7 @@ func (m MyBridgeConnector) Init(ctx context.Context) error {
 	return nil
 }
 
-func (m MyBridgeConnector) createDummyRooms(ctx context.Context, user *domain.User) {
+func (m MyBridgeConnector) createDummyRooms(ctx context.Context, user *matrix.User) {
 	ghost := m.kit.GhostMaster.NewGhost(
 		"SomeUserID",
 		"Test User",
@@ -159,14 +160,14 @@ func (m MyBridgeConnector) Stop() {
 	m.memDb.Store()
 }
 
-func (m MyBridgeConnector) GetRoom(ctx context.Context, roomID id.RoomID) *domain.Room {
+func (m MyBridgeConnector) GetRoom(ctx context.Context, roomID id.RoomID) *matrix.Room {
 	// check if in DB
 	if r, ok := m.memDb.Rooms[roomID]; ok {
 		return r
 	}
 
 	// not in db
-	return &domain.Room{
+	return &matrix.Room{
 		MXID: roomID,
 	}
 }
@@ -181,18 +182,18 @@ func (m MyBridgeConnector) IsGhost(ctx context.Context, userID id.UserID) bool {
 	return false
 }
 
-func (m MyBridgeConnector) GetGhost(ctx context.Context, userID id.UserID) *domain.Ghost {
+func (m MyBridgeConnector) GetGhost(ctx context.Context, userID id.UserID) *matrix.Ghost {
 	fmt.Println("GetGhost unimplemented")
 	//TODO implement me
 	return nil
 }
 
-func (m MyBridgeConnector) GetUser(ctx context.Context, uid id.UserID, create bool) *domain.User {
+func (m MyBridgeConnector) GetUser(ctx context.Context, uid id.UserID, create bool) *matrix.User {
 	if u, ok := m.memDb.Users[uid]; ok {
 		return u
 	}
 
-	u := &domain.User{
+	u := &matrix.User{
 		MXID:             uid,
 		RemoteID:         "whatsapp_id",
 		RemoteName:       "WhatsApp Name",
@@ -206,7 +207,7 @@ func (m MyBridgeConnector) GetUser(ctx context.Context, uid id.UserID, create bo
 	return u
 }
 
-func (m MyBridgeConnector) SetManagementRoom(ctx context.Context, user *domain.User, roomID id.RoomID) {
+func (m MyBridgeConnector) SetManagementRoom(ctx context.Context, user *matrix.User, roomID id.RoomID) {
 	//TODO implement me
 	fmt.Println("SetSetManagementRoom for ", user.DisplayName)
 	if _, ok := m.memDb.Users[user.MXID]; ok {
@@ -214,7 +215,7 @@ func (m MyBridgeConnector) SetManagementRoom(ctx context.Context, user *domain.U
 	}
 }
 
-func (m MyBridgeConnector) HandleMatrixRoomEvent(ctx context.Context, room *domain.Room, user bridge.User, evt *event.Event) error {
+func (m MyBridgeConnector) HandleMatrixRoomEvent(ctx context.Context, room *matrix.Room, user bridge.User, evt *event.Event) error {
 	switch evt.Type {
 	case event.EventMessage:
 		fmt.Println("got message event")
@@ -239,7 +240,7 @@ func (m MyBridgeConnector) HandleMatrixRoomEvent(ctx context.Context, room *doma
 	return nil
 }
 
-func NewBridgeConnector(bk *pkg.BridgeKit) *MyBridgeConnector {
+func NewBridgeConnector(bk *bridgekit.BridgeKit) *MyBridgeConnector {
 	br := &MyBridgeConnector{
 		kit:   bk,
 		memDb: NewMemDB(),
