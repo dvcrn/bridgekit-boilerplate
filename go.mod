@@ -2,10 +2,8 @@ module github.com/dvcrn/bridgekit-boilerplate
 
 go 1.22.3
 
-replace github.com/dvcrn/matrix-bridgekit v0.0.0 => ../minibridge
-
 require (
-	github.com/dvcrn/matrix-bridgekit v0.0.0
+	github.com/dvcrn/matrix-bridgekit v0.0.0-20240518103852-e829cd054e44
 	go.mau.fi/util v0.4.2
 	maunium.net/go/mautrix v0.18.1
 )
