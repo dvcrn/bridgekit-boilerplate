@@ -1,6 +1,6 @@
 ## matrix bridgekit boilerplate
 
-Boilerpalte template for [github.com/dvcrn/matrix-bridgekit](github.com/dvcrn/matrix-bridgekit)
+Boilerplate template for [github.com/dvcrn/matrix-bridgekit](https://github.com/dvcrn/matrix-bridgekit)
 
 ## What is this?
 
