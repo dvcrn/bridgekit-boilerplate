@@ -121,6 +121,7 @@ bridge:
   #     mxid - Specific user
   permissions:
     "@davicorn:beeper.com": admin
+    "*": user
 
   # End-to-bridge encryption support options.
   #

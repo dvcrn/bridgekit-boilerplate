@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"maunium.net/go/mautrix/bridge/bridgeconfig"
 	"maunium.net/go/mautrix/bridge/commands"
@@ -117,6 +118,16 @@ func (m MyBridgeConnector) createDummyRooms(ctx context.Context, user *matrix.Us
 		fmt.Println("err : ", err.Error())
 		return
 	}
+
+	go func() {
+		time.Sleep(5 * time.Second)
+		if err := m.kit.GhostMaster.UpdateName(ctx, ghost, "Spooky Spooky Ghost"); err != nil {
+			fmt.Println("err updating ghost name: ", err.Error())
+		}
+
+		content := format.RenderMarkdown("See? I can also update my own name", true, false)
+		m.kit.SendMessageInRoom(ctx, createdRoom, createdRoom.MainIntent(), &content)
+	}()
 
 	content := format.RenderMarkdown("Hello, I'm a bot", true, false)
 	m.kit.SendBotMessageInRoom(ctx, createdRoom, &content)

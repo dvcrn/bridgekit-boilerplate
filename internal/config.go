@@ -20,6 +20,7 @@ type MyBridgeConfig struct {
 	CommandPrefix      string                           `yaml:"command_prefix"`
 	ManagementRoomText bridgeconfig.ManagementRoomTexts `yaml:"management_room_text"`
 	DoublePuppetConfig bridgeconfig.DoublePuppetConfig  `yaml:",inline"`
+	Permissions        bridgeconfig.PermissionConfig    `yaml:"permissions"`
 
 	TestNested struct {
 		SomeKey string `yaml:"some_key"`
@@ -96,6 +97,8 @@ func (m *Config) DoUpgrade(helper *configupgrade.Helper) {
 	helper.Copy(up.Str, "bridge", "some_key")
 	helper.Copy(up.Str, "some_other_section", "key")
 
+	helper.Copy(up.Map, "bridge", "double_puppet_server_map")
+	helper.Copy(up.Bool, "bridge", "double_puppet_allow_discovery")
 	if legacySecret, ok := helper.Get(up.Str, "bridge", "login_shared_secret"); ok && len(legacySecret) > 0 {
 		baseNode := helper.GetBaseNode("bridge", "login_shared_secret_map")
 		baseNode.Map[helper.GetBase("homeserver", "domain")] = up.StringNode(legacySecret)
