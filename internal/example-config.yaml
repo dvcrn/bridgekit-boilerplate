@@ -200,6 +200,9 @@ bridge:
       # You should not enable this option unless you understand all the implications.
       disable_device_change_key_rotation: false
 
+some_other_section:
+  key: testvalue
+
 # Logging config. See https://github.com/tulir/zeroconfig for details.
 logging:
   min_level: debug

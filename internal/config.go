@@ -3,7 +3,6 @@ package internal
 import (
 	_ "embed"
 
-	"github.com/dvcrn/matrix-bridgekit/bridgekit"
 	"go.mau.fi/util/configupgrade"
 	up "go.mau.fi/util/configupgrade"
 	"maunium.net/go/mautrix/bridge/bridgeconfig"
@@ -12,7 +11,7 @@ import (
 //go:embed example-config.yaml
 var ExampleConfig string
 
-var _ bridgekit.ConfigGetter = &Config{}
+// var _ bridgekit.ConfigGetter = &Config{}
 var _ bridgeconfig.BridgeConfig = &MyBridgeConfig{}
 
 type MyBridgeConfig struct {
@@ -21,6 +20,10 @@ type MyBridgeConfig struct {
 	CommandPrefix      string                           `yaml:"command_prefix"`
 	ManagementRoomText bridgeconfig.ManagementRoomTexts `yaml:"management_room_text"`
 	DoublePuppetConfig bridgeconfig.DoublePuppetConfig  `yaml:",inline"`
+
+	TestNested struct {
+		SomeKey string `yaml:"some_key"`
+	} `yaml:"bridge"`
 }
 
 func (m MyBridgeConfig) FormatUsername(username string) string {
@@ -68,22 +71,31 @@ func (m MyBridgeConfig) Validate() error {
 
 type Config struct {
 	*bridgeconfig.BaseConfig `yaml:",inline"`
-	BridgeConfig             MyBridgeConfig `yaml:"bridge"`
+
+	SomeOtherSection struct {
+		Key string `yaml:"key"`
+	} `yaml:"some_other_section"`
+
+	BridgeConfig *MyBridgeConfig `yaml:"bridge"`
 }
 
-func (m Config) Base() *bridgeconfig.BaseConfig {
-	return m.BaseConfig
+func (m *Config) Bridge() bridgeconfig.BridgeConfig {
+	return &MyBridgeConfig{}
 }
 
-func (m Config) Bridge() bridgeconfig.BridgeConfig {
-	//TODO implement me
-	return m.BridgeConfig
+func (m *Config) GetPtr(base *bridgeconfig.BaseConfig) any {
+	m.BridgeConfig = &MyBridgeConfig{}
+	m.BaseConfig = base
+	m.BaseConfig.Bridge = m.BridgeConfig
+	return m
 }
 
 func (m *Config) DoUpgrade(helper *configupgrade.Helper) {
 	bridgeconfig.Upgrader.DoUpgrade(helper)
 
 	helper.Copy(up.Str, "bridge", "some_key")
+	helper.Copy(up.Str, "some_other_section", "key")
+
 	if legacySecret, ok := helper.Get(up.Str, "bridge", "login_shared_secret"); ok && len(legacySecret) > 0 {
 		baseNode := helper.GetBaseNode("bridge", "login_shared_secret_map")
 		baseNode.Map[helper.GetBase("homeserver", "domain")] = up.StringNode(legacySecret)

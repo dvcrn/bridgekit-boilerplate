@@ -63,8 +63,7 @@ func NewMemDB() *MemDB {
 }
 
 type MyBridgeConnector struct {
-	kit *bridgekit.BridgeKit
-
+	kit   *bridgekit.BridgeKit[*Config]
 	memDb *MemDB
 }
 
@@ -133,8 +132,8 @@ func (m MyBridgeConnector) Start(ctx context.Context) {
 	// Start interval polling
 	// Create ghosts
 
-	bridgeConfig := m.kit.Config.Bridge.(MyBridgeConfig)
-	fmt.Printf("%v+\n", bridgeConfig.SomeKey)
+	//bridgeConfig := m.kit.Config.Bridge.(MyBridgeConfig)
+	//fmt.Printf("%v+\n", bridgeConfig.SomeKey)
 
 	// TODO: for debug. remove me.
 	func(v interface{}) {
@@ -146,6 +145,9 @@ func (m MyBridgeConnector) Start(ctx context.Context) {
 		buf := bytes.NewBuffer(j)
 		fmt.Printf("%v\n", buf.String())
 	}(m.kit.Config)
+
+	fmt.Printf("SomeKey: %v\n", m.kit.Config.BridgeConfig.SomeKey)
+	fmt.Printf("SomeOtherSection Key%v\n", m.kit.Config.SomeOtherSection.Key)
 
 	fmt.Println("--------------------")
 	fmt.Println("Started bridge!! Go ahead and message", m.kit.Bot.UserID.String())
@@ -240,7 +242,7 @@ func (m MyBridgeConnector) HandleMatrixRoomEvent(ctx context.Context, room *matr
 	return nil
 }
 
-func NewBridgeConnector(bk *bridgekit.BridgeKit) *MyBridgeConnector {
+func NewBridgeConnector(bk *bridgekit.BridgeKit[*Config]) *MyBridgeConnector {
 	br := &MyBridgeConnector{
 		kit:   bk,
 		memDb: NewMemDB(),
