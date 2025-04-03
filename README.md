@@ -1,3 +1,8 @@
+No longer relevant - bridgev2 implements most of the stuff bridgekit tried to solve
+
+Use https://github.com/dvcrn/matrix-bridge-quickstart
+
+
 ## matrix bridgekit boilerplate
 
 Boilerplate template for [github.com/dvcrn/matrix-bridgekit](https://github.com/dvcrn/matrix-bridgekit)
